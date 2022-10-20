@@ -1,1 +1,1 @@
-web: gunicorn --pythonpath api ino:application
+web: gunicorn ino.wsgi
