@@ -1,1 +1,1 @@
-web: gunicorn ino:app
+web: gunicorn ino:wsgi
