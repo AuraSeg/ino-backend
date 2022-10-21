@@ -47,6 +47,7 @@ class MilestoneListAPIView(APIView):
     permission_classes = (permissions.AllowAny,)
 
     def get(self, request):
-        milestones = Milestone.objects.order_by('due_date')
+        milestones = Milestone.objects.filter(completion_status=False)
+        milestones = milestones.order_by('due_date')
         serializer = MilestoneSerializer(milestones, many=True)
         return Response(serializer.data)
