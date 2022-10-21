@@ -4,6 +4,7 @@ from rest_framework import permissions
 from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
+from rest_framework.generics import RetrieveUpdateDestroyAPIView
 from .models import Milestone
 from .serializers import MilestoneSerializer, TeamSerializer, TeamMemberSerializer
 
@@ -30,34 +31,22 @@ class MilestoneCreateAPIView(APIView):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
-class MilestoneAPIView(APIView):
-    permission_classes = (permissions.AllowAny, )
+class MilestoneAPIView(RetrieveUpdateDestroyAPIView):
+    serializer_class = MilestoneSerializer
+    queryset = Milestone.objects.all()
+    permission_classes = (permissions.AllowAny,)
+    lookup_field = "id"
 
-    def get(self, request, id):
-        #user_id = request.user.id
-        profile_obj = get_object_or_404(Milestone, id=id)
-        serializer = MilestoneSerializer(instance=profile_obj)
-        return Response(serializer.data)
+    def perform_create(self, serializer):
+        return serializer.save(id=id)
 
-    # def put(self, request):
-    #     user_id = request.user.id
-    #     profile_obj = get_object_or_404(Milestone, team=user_id)
-    #     serializer = MilestoneSerializer(instance=profile_obj, data=request.data, partial=True)
-    #     serializer.is_valid(raise_exception=True)
-    #     serializer.save(team=self.request.user)
-    #     return Response(serializer.data, status=status.HTTP_200_OK)
-
-    # def delete(self, request):
-    #     user_id = request.user.id
-    #     profile_obj = get_object_or_404(Milestone, team=user_id)
-    #     profile_obj.delete()
-    #     return Response({'message':'Eliminated'}, status=status.HTTP_204_NO_CONTENT)
-
+    def qet_queryset(self):
+        return self.queryset.filter(id=id)
 
 class MilestoneListAPIView(APIView):
     permission_classes = (permissions.AllowAny,)
 
     def get(self, request):
-        milestones = Milestone.objects.all()
+        milestones = Milestone.objects.order_by('due_date')
         serializer = MilestoneSerializer(milestones, many=True)
         return Response(serializer.data)
