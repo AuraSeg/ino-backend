@@ -11,6 +11,9 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
 from pathlib import Path
+from decouple import config, Csv
+
+ENV = config('ENV', default='dev')
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -25,8 +28,18 @@ SECRET_KEY = 'django-insecure-d*hi@pgs+-201g)39kq=a#6r#3bc%c8vza#@c@2hs8ojumpq4y
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+#ALLOWED_HOSTS = []
+DEBUG = config('DEBUG', default=False, cast=bool)
 
+ALLOWED_HOSTS = config('DJANGO_ALLOWED_HOSTS', cast=Csv(), default='*')
+
+CORS_ALLOW_ALL_ORIGINS = config('CORS_ALLOW_ALL_ORIGINS', default=False, cast=bool)
+
+CORS_ALLOWED_ORIGINS = config('CORS_ALLOWED_ORIGINS', cast=Csv(), default='')
+
+CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', cast=Csv(), default='')
+
+CSRF_COOKIE_SECURE = config('CSRF_COOKIE_SECURE', default=False, cast=bool)
 
 # Application definition
 
@@ -39,6 +52,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'milestones',
+    'users',
 ]
 
 MIDDLEWARE = [
@@ -52,6 +66,9 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'ino.urls'
+
+STATIC_ROOT = BASE_DIR / "staticfiles"
+#STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 
 TEMPLATES = [
     {
@@ -75,13 +92,28 @@ WSGI_APPLICATION = 'ino.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
+PG_DB = config('POSTGRES_DB', default='')
+PG_USER = config('POSTGRES_USER', default='')
+PG_PASSWD = config('POSTGRES_PASSWORD', default='')
+PG_HOST = config('POSTGRES_HOST', default='127.0.0.1')
+PG_PORT = config('POSTGRES_PORT', cast=int, default=5432)
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': PG_DB,
+        'USER': PG_USER,
+        'PASSWORD': PG_PASSWD,
+        'HOST': PG_HOST,
+        'PORT': PG_PORT,
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
@@ -105,7 +137,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/4.1/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'en-GB'
 
 TIME_ZONE = 'UTC'
 
@@ -123,3 +155,5 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+#DATE_INPUT_FORMATS = ('%d-%m-%Y','%Y-%m-%d')
